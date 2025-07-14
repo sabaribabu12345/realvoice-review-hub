@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ export const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
   const [tags, setTags] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [viewType, setViewType] = useState<'paid' | 'free'>('free');
+  const [price, setPrice] = useState('');
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -25,14 +27,17 @@ export const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!title || !file) return;
     // Mock upload logic
-    console.log("Uploading:", { title, tags, file });
+    console.log("Uploading:", { title, tags, file, viewType, price });
     onClose();
     // Reset form
     setTitle("");
     setTags("");
     setFile(null);
+    setViewType('free');
+    setPrice('');
   };
 
   return (
@@ -69,6 +74,26 @@ export const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
               onChange={(e) => setTags(e.target.value)}
               className="mt-1"
             />
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Access Type</Label>
+            <div className="flex gap-4 mt-2">
+              <label className="flex items-center gap-2">
+                <input type="radio" name="viewType" value="free" checked={viewType === 'free'} onChange={() => setViewType('free')} />
+                Free to View
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" name="viewType" value="paid" checked={viewType === 'paid'} onChange={() => setViewType('paid')} />
+                Pay to View
+              </label>
+            </div>
+            {viewType === 'paid' && (
+              <div className="mt-2">
+                <Label htmlFor="price" className="text-sm font-medium">Price ($)</Label>
+                <Input id="price" type="number" min="0" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="mt-1" />
+              </div>
+            )}
           </div>
 
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
